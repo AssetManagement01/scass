@@ -5,11 +5,162 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SCASS</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #0b4f37; }
-    iframe { border: 0; width: 100%; height: 100%; }
+    :root { --g:#0b4f37; --t:#0d9488; --n:#16324f; --m:#5b7380; --l:#c9dde0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #e8f4ef; color: var(--n); }
+    .erp { display: flex; min-height: 100vh; }
+    .sidebar { width: 230px; background: linear-gradient(180deg, #0b4f37, #0d9488); color: #e8f2ef; padding: 18px 12px; }
+    .side-name { font-weight: 800; font-size: 20px; }
+    .side-sub { font-size: 12px; opacity: .8; margin-bottom: 16px; }
+    .nav { display: block; width: 100%; text-align: left; background: transparent; border: 0; color: #d5ece7; padding: 10px 12px; border-radius: 10px; cursor: pointer; }
+    .nav.on { background: #14b8a6; color: #08352c; font-weight: 700; }
+    .main { flex: 1; padding: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .card { background: #fff; border: 1px solid var(--l); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+    .lbl { font-size: 11px; color: var(--m); text-transform: uppercase; }
+    .val { font-size: 22px; font-weight: 800; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 8px 6px; border-bottom: 1px solid #eef4f6; text-align: left; }
+    .muted { color: var(--m); font-size: 13px; }
+    .err { color: #b42318; }
+    #login { position: fixed; inset: 0; display: flex; }
+    .brand { flex: 7; background: linear-gradient(145deg, #0b4f37, #14b8a6); color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 48px; }
+    .form { flex: 3; display: flex; flex-direction: column; justify-content: center; padding: 32px; background: #eef7f5; }
+    input { width: 100%; padding: 10px; margin: 0 0 10px; border: 1px solid var(--l); border-radius: 10px; }
+    .btn { width: 100%; padding: 12px; border: 0; border-radius: 10px; background: var(--t); color: #fff; font-weight: 700; cursor: pointer; }
+    .hide { display: none !important; }
+    @media (max-width: 800px) { .erp, #login { flex-direction: column; } .grid { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body>
-  <iframe src="https://script.google.com/macros/s/AKfycbyxWOQQ_cVvZ_1nlvW9Zt0sABqfbTXHgc9uoZw4JR_atTPo3iVaNDZg_6A1PhDMwkoQ/exec" title="SCASS" allow="clipboard-write"></iframe>
+<div id="login">
+  <div class="brand">
+    <div style="opacity:.9;margin-bottom:12px">SCASS · PAGES</div>
+    <h1 style="margin:0 0 12px;font-size:42px">Capital with clarity.</h1>
+    <p style="max-width:420px;opacity:.95">NewStar Kancing — inventory connected to Apps Script API.</p>
+  </div>
+  <div class="form">
+    <div style="text-align:center;font-weight:800;font-size:28px;color:#0b4f37;margin-bottom:16px">SCASS.com</div>
+    <div style="display:flex;gap:8px;align-items:center"><label style="width:80px">ID</label><input id="loginId"></div>
+    <div style="display:flex;gap:8px;align-items:center"><label style="width:80px">Password</label><input id="loginPass" type="password"></div>
+    <button class="btn" onclick="doLogin()">Sign in</button>
+    <div id="loginInfo" class="muted" style="margin-top:8px;text-align:center"></div>
+  </div>
+</div>
+<div id="app" class="erp hide">
+  <aside class="sidebar">
+    <div class="side-name">SCASS</div>
+    <div class="side-sub">NewStar Kancing</div>
+    <button class="nav on" id="n-dash" onclick="show('dash')">Dashboard</button>
+    <button class="nav" id="n-inv" onclick="show('inv')">Inventory</button>
+    <button class="nav" onclick="logout()">Sign out</button>
+  </aside>
+  <div class="main">
+    <div id="m-dash">
+      <b>Dashboard</b>
+      <div class="muted" id="apiStatus">Memuat data API...</div>
+      <div class="grid" style="margin-top:12px">
+        <div class="card"><div class="lbl">SKU aktif</div><div class="val" id="kSku">—</div></div>
+        <div class="card"><div class="lbl">Nilai stok</div><div class="val" id="kStok">—</div></div>
+        <div class="card"><div class="lbl">Stok rendah</div><div class="val" id="kLow">—</div></div>
+        <div class="card"><div class="lbl">Item</div><div class="val" id="kItem">—</div></div>
+      </div>
+    </div>
+    <div id="m-inv" class="hide">
+      <b>Inventory</b>
+      <div class="card" style="margin-top:12px;overflow:auto">
+        <table><thead><tr><th>SKU</th><th>Nama</th><th>Kategori</th><th>Stok</th><th>Harga Jual</th></tr></thead><tbody id="invBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbyxWOQQ_cVvZ_1nlvW9Zt0sABqfbTXHgc9uoZw4JR_atTPo3iVaNDZg_6A1PhDMwkoQ/exec';
+var TOKEN = 'NSK-SCASS-2026';
+var data = { inventory: [] };
+function rp(n){ return 'Rp ' + Number(n||0).toLocaleString('id-ID'); }
+function num(r, keys){
+  for (var i=0;i<keys.length;i++){ var v=Number(r[keys[i]]); if(!isNaN(v) && r[keys[i]]!=='') return v; }
+  return 0;
+}
+function api(action, payload){
+  return new Promise(function(resolve, reject){
+    var cb = 'cb' + Date.now() + Math.floor(Math.random()*9999);
+    var done = false;
+    window[cb] = function(res){
+      done = true;
+      try { delete window[cb]; } catch(e){}
+      if (s && s.parentNode) s.parentNode.removeChild(s);
+      if (res && res.ok === false) reject(new Error(res.error || 'API error'));
+      else resolve(res);
+    };
+    var s = document.createElement('script');
+    s.src = API + '?action=' + encodeURIComponent(action)
+      + '&token=' + encodeURIComponent(TOKEN)
+      + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}))
+      + '&callback=' + cb;
+    s.onerror = function(){ reject(new Error('Network/API blocked')); };
+    document.head.appendChild(s);
+    setTimeout(function(){ if(!done) reject(new Error('API timeout')); }, 45000);
+  });
+}
+function doLogin(){
+  var id = (document.getElementById('loginId').value||'').trim().toUpperCase();
+  var pass = (document.getElementById('loginPass').value||'').trim().toUpperCase();
+  if (id==='USER' && pass==='USER') {
+    localStorage.setItem('scass_pages','1');
+    document.getElementById('login').classList.add('hide');
+    document.getElementById('app').classList.remove('hide');
+    load();
+    return;
+  }
+  document.getElementById('loginInfo').className = 'err';
+  document.getElementById('loginInfo').innerText = 'USER / USER';
+}
+function logout(){
+  localStorage.removeItem('scass_pages');
+  location.reload();
+}
+function show(name){
+  document.getElementById('m-dash').className = name==='dash' ? '' : 'hide';
+  document.getElementById('m-inv').className = name==='inv' ? '' : 'hide';
+  document.getElementById('n-dash').className = 'nav' + (name==='dash'?' on':'');
+  document.getElementById('n-inv').className = 'nav' + (name==='inv'?' on':'');
+}
+function paint(){
+  var inv = data.inventory || [];
+  var nilai = 0, low = 0;
+  inv.forEach(function(r){
+    var stok = num(r, ['Stok','Qty','Stock']);
+    var harga = num(r, ['Harga Beli','Harga Jual','Harga']);
+    var min = num(r, ['Min Stok','Min']);
+    nilai += stok * harga;
+    if (stok <= min) low++;
+  });
+  document.getElementById('kSku').innerText = inv.length;
+  document.getElementById('kStok').innerText = rp(nilai);
+  document.getElementById('kLow').innerText = low;
+  document.getElementById('kItem').innerText = inv.length;
+  document.getElementById('invBody').innerHTML = inv.map(function(r){
+    return '<tr><td>'+(r.SKU||'')+'</td><td>'+(r.Nama||'')+'</td><td>'+(r.Kategori||'')+'</td><td>'+num(r,['Stok','Qty'])+'</td><td>'+rp(num(r,['Harga Jual','Harga']))+'</td></tr>';
+  }).join('') || '<tr><td colspan="5">Tidak ada data</td></tr>';
+}
+function load(){
+  document.getElementById('apiStatus').innerText = 'Memuat dari API...';
+  api('getErpData', {}).then(function(res){
+    data = res || {};
+    document.getElementById('apiStatus').innerText = 'Terhubung · ' + (data.inventory||[]).length + ' SKU';
+    paint();
+  }).catch(function(err){
+    document.getElementById('apiStatus').className = 'err';
+    document.getElementById('apiStatus').innerText = String(err.message||err);
+  });
+}
+if (localStorage.getItem('scass_pages')==='1') {
+  document.getElementById('login').classList.add('hide');
+  document.getElementById('app').classList.remove('hide');
+  load();
+}
+</script>
 </body>
 </html>
