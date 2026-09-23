@@ -1,13 +1,96 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Cache-Control" content="no-store">
-  <title>SCASS</title>
-  <style>html,body{margin:0;height:100%;background:#0b4f37}iframe{border:0;width:100%;height:100%}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>SCASS PAGES 18</title>
+<style>
+:root{--n:#16324f;--t:#0d9488;--m:#5b7380;--l:#c9dde0}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:var(--n);background:#e8f4ef}
+#login{position:fixed;inset:0;display:flex;z-index:20;background:#eef7f5}
+.brand{flex:7;background:linear-gradient(145deg,#0b4f37,#14b8a6);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:40px}
+.form{flex:3;display:flex;flex-direction:column;justify-content:center;padding:28px;min-width:260px}
+.erp{display:flex;min-height:100vh}
+.sidebar{width:148px;min-width:148px;background:linear-gradient(180deg,#0b4f37,#0d9488);color:#e8f2ef;padding:14px 8px;display:flex;flex-direction:column}
+.nav{display:block;width:100%;text-align:left;background:transparent;border:0;color:#d5ece7;padding:9px 10px;border-radius:10px;cursor:pointer;font-size:13px}
+.nav.on{background:#14b8a6;color:#08352c;font-weight:700}
+.main{flex:1;min-width:0;padding:12px}
+.card{background:#fff;border:1px solid var(--l);border-radius:14px;padding:12px;margin:0 0 12px}
+.stack input,.stack select,.stack button{width:100%;margin:0 0 8px;display:block}
+input,select,.btn{font-size:16px;padding:12px;border-radius:10px}
+input,select{border:1px solid var(--l);background:#f4f8fa}
+.btn{border:0;background:var(--t);color:#fff;font-weight:700}
+.muted{color:var(--m);font-size:13px}
+.err{color:#b42318}
+.hide{display:none !important}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 6px;border-bottom:1px solid #eef4f6;text-align:left}
+@media(min-width:901px){#login{flex-direction:row}.sidebar{width:200px;min-width:200px}}
+@media(max-width:900px){#login{flex-direction:column}.brand{flex:0 0 26%;padding:16px;justify-content:flex-end}.form{flex:1;padding:16px}}
+</style>
 </head>
 <body>
-  <iframe src="https://script.google.com/macros/s/AKfycbyxWOQQ_cVvZ_1nlvW9Zt0sABqfbTXHgc9uoZw4JR_atTPo3iVaNDZg_6A1PhDMwkoQ/exec?v=full" title="SCASS" allow="clipboard-write"></iframe>
+<div id="login">
+  <div class="brand"><div>SCASS · PAGES 18</div><h1 style="margin:8px 0">Capital with clarity.</h1><p>NewStar Kancing</p></div>
+  <div class="form">
+    <div style="text-align:center;font-weight:800;font-size:24px;color:#0b4f37;margin-bottom:14px">SCASS.com</div>
+    <label>ID</label><input id="loginId">
+    <label>Password</label><input id="loginPass" type="password">
+    <button class="btn" style="width:100%;margin-top:8px" onclick="doLogin()">Sign in</button>
+    <div id="loginInfo" class="muted" style="text-align:center;margin-top:8px"></div>
+  </div>
+</div>
+<div id="app" class="erp hide">
+  <aside class="sidebar">
+    <div style="font-weight:800">SCASS</div>
+    <div class="muted" style="color:#9fb6c0;margin-bottom:10px">PAGES 18</div>
+    <button class="nav on" id="n-dash" onclick="show('dash')">Dashboard</button>
+    <button class="nav" id="n-inv" onclick="show('inv')">Inventory</button>
+    <button class="nav" id="n-jual" onclick="show('jual')">Sales</button>
+    <button class="nav" onclick="logout()">Sign out</button>
+  </aside>
+  <div class="main">
+    <div id="m-dash"><b>Dashboard</b><div class="muted" id="apiStatus">Memuat...</div><div class="card"><div class="muted">SKU</div><div id="kSku" style="font-size:22px;font-weight:800">—</div></div></div>
+    <div id="m-inv" class="hide">
+      <b>Inventory</b>
+      <div class="muted">Form satu kolom di HP</div>
+      <div class="card stack">
+        <b>Tambah / ubah barang</b>
+        <input id="bSku" placeholder="SKU">
+        <input id="bNama" placeholder="Nama barang">
+        <input id="bKat" placeholder="Kategori">
+        <input id="bSat" placeholder="Satuan">
+        <input id="bStok" type="number" placeholder="Stok">
+        <input id="bBeli" type="number" placeholder="Harga beli">
+        <input id="bJual" type="number" placeholder="Harga jual">
+        <input id="bMin" type="number" placeholder="Min stok">
+        <button class="btn" onclick="saveBarang()">Simpan barang</button>
+        <div id="invInfo" class="muted"></div>
+      </div>
+      <div class="card" style="overflow:auto">
+        <input id="invQ" placeholder="Cari SKU / nama" oninput="paintInv()">
+        <table><thead><tr><th>SKU</th><th>Nama</th><th>Stok</th><th>Harga</th></tr></thead><tbody id="invBody"></tbody></table>
+      </div>
+    </div>
+    <div id="m-jual" class="hide"><b>Sales</b><div class="card" style="overflow:auto"><table><thead><tr><th>No Inv</th><th>Item</th><th>Status</th></tr></thead><tbody id="soBody"></tbody></table></div></div>
+  </div>
+</div>
+<script>
+var API='https://script.google.com/macros/s/AKfycbyxWOQQ_cVvZ_1nlvW9Zt0sABqfbTXHgc9uoZw4JR_atTPo3iVaNDZg_6A1PhDMwkoQ/exec';
+var TOKEN='NSK-SCASS-2026';
+var data={inventory:[],invoice:[]};
+function rp(n){return 'Rp '+Number(n||0).toLocaleString('id-ID')}
+function api(a,p){return new Promise(function(ok,fail){var cb='cb'+Date.now();var done=false;window[cb]=function(res){done=true;try{delete window[cb]}catch(e){} if(s&&s.parentNode)s.parentNode.removeChild(s); if(res&&res.ok===false)fail(new Error(res.error));else ok(res)};var s=document.createElement('script');s.src=API+'?action='+encodeURIComponent(a)+'&token='+encodeURIComponent(TOKEN)+'&payload='+encodeURIComponent(JSON.stringify(p||{}))+'&callback='+cb;s.onerror=function(){fail(new Error('Network'))};document.head.appendChild(s);setTimeout(function(){if(!done)fail(new Error('timeout'))},45000)})}
+function doLogin(){var I=(document.getElementById('loginId').value||'').trim();var P=(document.getElementById('loginPass').value||'').trim();var U=I.toUpperCase();var ok=(U==='USER'&&P.toUpperCase()==='USER')||(U==='ADMIN'&&P==='admin1234')||(U==='TRIAL'&&P.toUpperCase()==='TRIAL');if(!ok){document.getElementById('loginInfo').className='err';document.getElementById('loginInfo').innerText='LOGIN TIDAK DI TEMUKAN';return}localStorage.setItem('scass_pages','1');document.getElementById('login').classList.add('hide');document.getElementById('app').classList.remove('hide');load()}
+function logout(){localStorage.removeItem('scass_pages');location.reload()}
+function show(n){['dash','inv','jual'].forEach(function(x){document.getElementById('m-'+x).className=x===n?'':'hide';var b=document.getElementById('n-'+x);if(b)b.className='nav'+(x===n?' on':'')})}
+function paintInv(){var q=(document.getElementById('invQ').value||'').toLowerCase();var rows=(data.inventory||[]).filter(function(r){return !q||String(r.SKU||'').toLowerCase().indexOf(q)>=0||String(r.Nama||'').toLowerCase().indexOf(q)>=0});document.getElementById('invBody').innerHTML=rows.map(function(r){return '<tr><td>'+(r.SKU||'')+'</td><td>'+(r.Nama||'')+'</td><td>'+(r.Stok||0)+'</td><td>'+rp(r['Harga Jual'])+'</td></tr>'}).join('')||'<tr><td colspan="4">Kosong</td></tr>'}
+function paint(){document.getElementById('kSku').innerText=(data.inventory||[]).length;paintInv();document.getElementById('soBody').innerHTML=(data.invoice||[]).slice(0,30).map(function(r){return '<tr><td>'+(r['No Inv']||'')+'</td><td>'+(r.Nama||'')+'</td><td>'+(r.Status||'')+'</td></tr>'}).join('')||'<tr><td colspan="3">Kosong</td></tr>'}
+function load(){document.getElementById('apiStatus').innerText='Memuat API...';api('getErpData',{}).then(function(res){data=res||{};document.getElementById('apiStatus').innerText='PAGES 18 · '+(data.inventory||[]).length+' SKU';paint()}).catch(function(e){document.getElementById('apiStatus').className='err';document.getElementById('apiStatus').innerText=String(e.message||e)})}
+function saveBarang(){api('simpanBarang',{sku:bSku.value,nama:bNama.value,kategori:bKat.value,satuan:bSat.value,stok:bStok.value,hargaBeli:bBeli.value,hargaJual:bJual.value,minStok:bMin.value}).then(function(){invInfo.innerText='Tersimpan';load()}).catch(function(e){alert(e.message||e)})}
+if(localStorage.getItem('scass_pages')==='1'){document.getElementById('login').classList.add('hide');document.getElementById('app').classList.remove('hide');load()}
+</script>
 </body>
 </html>
