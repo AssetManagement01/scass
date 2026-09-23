@@ -1,12 +1,1130 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-  <meta charset="utf-8">
+  <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SCASS</title>
-  <style>html,body{margin:0;height:100%;background:#0b4f37}iframe{border:0;width:100%;height:100%}</style>
+  <style>
+    :root { --navy:#16324f; --teal:#1f7a6e; --card:#fff; --line:#c9dde0; --text:#16324f; --muted:#5b7380; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Arial,sans-serif; color:var(--text); background:linear-gradient(180deg,#e8f4ef,#e6f0f6); min-height:100vh; }
+    .erp { display:flex; min-height:100vh; }
+    .sidebar { width:248px; min-width:248px; flex-shrink:0; overflow:auto; background:linear-gradient(180deg,#0b4f37,#0d9488); color:#e8f2ef; display:flex; flex-direction:column; }
+    .side-brand { padding:18px 16px 12px; border-bottom:1px solid rgba(255,255,255,.08); }
+    .logo-wrap { background:#fff; border-radius:16px; padding:6px 10px; display:inline-block; }
+    .logo-img { display:block; width:64px; height:64px; object-fit:contain; }
+    .login-logo { padding:0; background:transparent !important; width:fit-content; align-self:center; }
+    #pageLogin .logo-wrap { background:transparent !important; display:block; width:fit-content; margin:0 auto 8px; padding:0; }
+    #pageLogin .logo-wrap img { width:132px !important; height:auto !important; display:block; margin:0 auto; }
+    
+    .login-stack { width:min(360px,88%); display:flex; flex-direction:column; align-items:stretch; }
+    .login-stack .logo-wrap, #pageLogin .logo-wrap { align-self:center; background:transparent !important; box-shadow:none !important; padding:0 !important; margin:0 auto 4px; border-radius:0; }
+    .login-stack .logo-wrap img, #pageLogin .logo-wrap img { width:108px !important; height:auto !important; background:transparent !important; mix-blend-mode:multiply; }
+    .login-stack .wordmark { text-align:center; margin:2px 0 20px; font-size:1.4rem; }
+    .login-row { display:flex; align-items:center; gap:12px; margin:0 0 10px; }
+    .login-row label { flex:0 0 78px; margin:0; font-size:13px; font-weight:600; color:#4b6570; text-align:right; }
+    .login-row input { flex:1; width:auto; margin:0; padding:9px 12px; border:1px solid #d5e4e8; border-radius:10px; font-size:14px; background:#fff; box-sizing:border-box; }
+    .login-stack .btn { width:100%; box-sizing:border-box; margin-top:8px; padding:11px 12px; }
+    .login-stack #loginInfo { text-align:center; min-height:18px; }
+
+    .login-logo .logo-img, .login-logo-img { width:180px; height:180px; margin:0 auto; object-fit:contain; display:block; }
+    .side-logo-img { width:64px; height:64px; object-fit:contain; display:block; }
+    .side-name { font-weight:800; margin-top:10px; font-size:18px; }
+    .side-sub { font-size:12px; color:#9fb6c0; margin-top:2px; }
+    .side-nav { padding:12px 10px; display:flex; flex-direction:column; gap:4px; flex:1; }
+    .nav { background:transparent; color:#cfe0e4; border:0; text-align:left; padding:10px 12px; border-radius:10px; cursor:pointer; font-size:14px; }
+    .nav:hover { background:rgba(255,255,255,.08); }
+    .nav.on { background:#14b8a6; color:#08352c; font-weight:700; }
+    .nav .hint { display:block; font-size:11px; color:#8aa3ad; font-weight:400; }
+    .side-foot { padding:12px; border-top:1px solid rgba(255,255,255,.08); }
+    .erp-main { flex:1; min-width:0; padding:16px; }
+    .crumb b { color:var(--navy); font-size:18px; }
+    .crumb { color:var(--muted); font-size:13px; margin-bottom:12px; }
+    .mod-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(22,50,79,.08); margin-bottom:10px; }
+    .kpi .lbl { font-size:12px; color:var(--muted); text-transform:uppercase; }
+    .kpi .val { font-size:22px; font-weight:800; color:var(--navy); margin-top:4px; }
+    .btn, .btn2, .btn3, input, select { font-size:16px; padding:10px; border-radius:10px; }
+    .btn, .btn2, .btn3 { border:0; cursor:pointer; font-weight:700; }
+    .btn { background:#0d9488; color:#fff; }
+    .btn2 { background:#0f766e; color:#fff; }
+    .btn3 { background:#8a2a2a; color:#fff; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; }
+    input, select { width:100%; border:1px solid var(--line); background:#f4f8fa; margin:6px 0; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { text-align:left; border-bottom:1px solid var(--line); padding:8px 4px; }
+    td { padding:8px 4px; border-bottom:1px solid #eef4f6; }
+    .muted { color:var(--muted); font-size:13px; }
+    .loginbox { max-width:420px; margin:8vh auto; text-align:center; }
+    
+    #pageLogin.hide, #pageLogin[style*="display: none"], #pageLogin[style*="display:none"] { display:none !important; }
+    #pageLogin { position:fixed; inset:0; display:flex; flex-direction:row; flex-wrap:nowrap !important; align-items:stretch !important; background:#eef7f5; z-index:20; padding:0; margin:0; width:100% !important; height:100% !important; }
+    .login-brand-panel { flex:7 1 70% !important; min-width:0; min-height:100% !important; background:linear-gradient(145deg,#0b4f37 0%,#0d9488 50%,#14b8a6 100%); color:#fff; display:flex; flex-direction:column; justify-content:center; padding:3rem 3.5rem; position:relative; overflow:hidden; }
+    .login-brand-panel::before { content:""; position:absolute; inset:-20%; background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.12) 0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.08) 0%,transparent 45%); pointer-events:none; }
+    .login-brand-badge { display:inline-flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.22); border-radius:999px; padding:.5rem 1.1rem; font-size:.95rem; font-weight:700; letter-spacing:.08em; margin-bottom:1.6rem; position:relative; z-index:1; width:fit-content; }
+    .login-brand-panel h1 { font-size:clamp(2.4rem,4.2vw,3.4rem); font-weight:800; line-height:1.12; margin:0 0 1.1rem; position:relative; z-index:1; letter-spacing:-.03em; }
+    .login-brand-panel p { font-size:1.18rem; opacity:.95; line-height:1.55; max-width:460px; position:relative; z-index:1; margin:0; font-weight:400; }
+    
+    #pageLogin .card.loginbox { flex:3 1 30% !important; max-width:30% !important; min-width:300px; max-width:none !important; width:auto !important; margin:0 !important; min-height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background:transparent !important; box-shadow:none !important; border:0 !important; border-radius:0 !important; padding:2.2rem 3rem !important; text-align:center; }
+    #pageLogin .card.loginbox input { width:100%; padding:.65rem .85rem; border:1px solid #d5e4e8; border-radius:10px; font-size:.9rem; background:#fff; }
+    #pageLogin .card.loginbox input:focus { border-color:#0d9488; box-shadow:0 0 0 3px rgba(13,148,136,.18); outline:none; }
+    #pageLogin .card.loginbox .btn { width:100%; margin-top:1.25rem; padding:.8rem; background:#0d9488 !important; color:#fff !important; border:none; border-radius:10px; font-weight:700; }
+    #pageLogin .card.loginbox label { display:block; font-size:.78rem; font-weight:600; color:#5b7380; margin:.85rem 0 .3rem; text-align:left; }
+    @media (max-width:1100px){
+      #pageLogin{ flex-direction:column !important; }
+      .login-brand-panel{
+        flex:0 0 28% !important; min-height:0 !important; max-height:30vh !important;
+        padding:16px 18px !important; justify-content:flex-end !important;
+      }
+      .login-brand-badge{ margin-bottom:8px !important; font-size:.72rem !important; }
+      .login-brand-panel h1{ font-size:1.55rem !important; margin:0 0 6px !important; }
+      .login-brand-panel p{ font-size:.86rem !important; max-width:100% !important; }
+      #pageLogin .card.loginbox{
+        flex:1 1 72% !important; max-width:100% !important; min-width:0 !important;
+        width:100% !important; min-height:0 !important; padding:18px 20px 28px !important;
+        justify-content:flex-start !important;
+      }
+      .login-stack{ width:min(440px,94%) !important; }
+      .login-row{ margin:0 0 14px !important; }
+      .login-row label{ flex-basis:88px !important; font-size:15px !important; }
+      .login-row input{ padding:14px 12px !important; font-size:16px !important; min-height:48px; }
+      .login-stack .btn{ padding:14px !important; font-size:16px !important; min-height:48px; }
+      #pageLogin .logo-wrap img, .login-stack .logo-wrap img{ width:96px !important; }
+    }
+
+    
+    .item-card { position:relative; background:#f8fafb; border:1px solid #d7e8e4; border-radius:14px; padding:14px 14px 12px; margin:0 0 12px; }
+    .item-card .item-x { position:absolute; top:12px; right:12px; width:36px; height:36px; border:0; border-radius:10px; background:#fb7185; color:#fff; font-weight:800; cursor:pointer; }
+    .item-card .sku-row select, .item-card .sku-row input { width:100%; }
+    .sku-wrap { position:relative; }
+    .sku-list { display:none; position:absolute; z-index:30; left:0; right:0; top:100%; background:#fff; border:1px solid #c9dde0; border-radius:10px; max-height:220px; overflow:auto; box-shadow:0 8px 20px rgba(0,0,0,.12); }
+    .sku-list button { display:block; width:100%; text-align:left; border:0; background:#fff; padding:9px 10px; cursor:pointer; font-size:14px; }
+    .sku-list button:hover { background:#e8f4ef; }
+    .sku-list .sku-empty { padding:10px; color:#5b7380; font-size:13px; }
+    .item-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:8px; }
+    .item-grid label, .item-card > label { display:block; font-size:12px; font-weight:700; color:#5b7380; margin:0 0 4px; text-align:left; }
+    @media (max-width:700px){ .item-grid{grid-template-columns:1fr;} }
+    .table-wrap { overflow:auto; max-height:70vh; }
+    .table-wrap table { min-width:980px; }
+    .table-wrap thead th { position:sticky; top:0; z-index:1; }
+    .modal-back { display:none; position:fixed; inset:0; background:rgba(11,79,55,.45); z-index:120; align-items:center; justify-content:center; padding:18px; }
+    .modal-back.show { display:flex; }
+    .modal-card { background:#fff; width:min(560px,100%); max-height:90vh; overflow:auto; border-radius:16px; padding:20px 20px 16px; box-shadow:0 24px 60px rgba(0,0,0,.25); }
+    .modal-card h3 { margin:0 0 12px; color:#0b4f37; }
+    .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .modal-card label { display:block; font-size:12px; font-weight:700; color:#5b7380; margin:6px 0 3px; text-align:left; }
+    .wordmark { font-weight:800; color:#0b4f37; font-size:34px; margin:10px 0 4px; letter-spacing:-.02em; }
+    .statuserr { color:#b42318; }
+    .statusok { color:#1f7a6e; }
+    .icon-pen { width:36px;height:36px;border:0;border-radius:10px;background:#0d9488;color:#fff;font-size:16px;cursor:pointer; }
+    #overlay { display:none; position:fixed; inset:0; background:rgba(22,50,79,.55); z-index:99; align-items:center; justify-content:center; color:#fff; text-align:center; }
+    #overlay.show { display:flex; }
+    .spin { width:36px; height:36px; border:4px solid #9bb; border-top-color:#2fa37a; border-radius:50%; margin:0 auto 12px; animation:r .8s linear infinite; }
+    @keyframes r { to { transform:rotate(360deg); } }
+    .sidebar img { max-width:100%; height:auto; }
+    .erp { align-items:stretch; }
+    @media (max-width:900px){
+      .mod-grid{grid-template-columns:1fr !important;}
+      .erp{flex-direction:row !important; align-items:stretch;}
+      .sidebar{width:156px !important; min-width:156px !important; min-height:100vh;}
+      .side-brand{padding:12px 10px 8px;}
+      .side-name{font-size:16px;}
+      .nav{padding:8px 10px !important; font-size:13px !important;}
+      .side-nav{flex-direction:column !important; flex-wrap:nowrap !important;}
+      .erp-main{min-width:0; padding:10px;}
+      .row{flex-direction:column !important; flex-wrap:nowrap !important;}
+      .row input, .row select, .row button, .row .btn, .row .btn2, .row .btn3{
+        width:100% !important; flex:none !important; max-width:100% !important;
+      }
+      .item-grid, .item-grid[style]{grid-template-columns:1fr !important;}
+      .card{padding:12px;}
+      input, select, .btn, .btn2, .btn3{font-size:16px !important;}
+    }
+  </style>
 </head>
 <body>
-  <iframe src="https://script.google.com/macros/s/AKfycbyxWOQQ_cVvZ_1nlvW9Zt0sABqfbTXHgc9uoZw4JR_atTPo3iVaNDZg_6A1PhDMwkoQ/exec" title="SCASS" allow="clipboard-write"></iframe>
+  <div id="overlay"><div><div class="spin"></div><div id="overlayText">Memproses...</div></div></div>
+<div id="invceModal" class="modal-back" onclick="if(event.target.id==='invceModal')closeInvce()">
+  <div class="modal-card">
+    <h3>Invoice</h3>
+    <label>No Inv</label><input id="ivNo" readonly>
+    <label>Customer</label><input id="ivCus" readonly>
+    <div class="modal-grid">
+      <div><label>Date</label><input id="ivTgl" readonly></div>
+      <div><label>Status</label>
+        <select id="ivStatus">
+          <option value="PENDING">PENDING</option>
+          <option value="LUNAS">PAID</option>
+          <option value="VOID">VOID</option>
+        </select>
+      </div>
+    </div>
+    <div class="muted" id="ivItems" style="margin:10px 0"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" onclick="saveInvceStatus()">Save</button>
+      <button class="btn2" type="button" onclick="pdfInv(document.getElementById('ivNo').value)">PDF</button>
+      <button class="btn3" type="button" onclick="closeInvce()">Close</button>
+    </div>
+  </div>
+</div>
+<div id="editModal" class="modal-back" onclick="if(event.target.id==='editModal')closeEdit()">
+  <div class="modal-card">
+    <h3 id="editTitle">Edit item</h3>
+    <label>SKU</label><input id="eSku" readonly>
+    <label>Product Name</label><input id="eNama">
+    <div class="modal-grid">
+      <div><label>Category</label><input id="eKat"></div>
+      <div><label>Uom</label><input id="eSat"></div>
+      <div><label>Qty / Stock</label><input id="eStok" type="number"></div>
+      <div><label>Min stock</label><input id="eMin" type="number"></div>
+      <div><label>Cost</label><input id="eBeli" type="number"></div>
+      <div><label>Price</label><input id="eJual" type="number"></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn2" onclick="saveEdit()">Save</button>
+      <button class="btn3" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+  <div id="pageLogin">
+  <div class="login-brand-panel">
+    <div class="login-brand-badge">SCASS · BUILD 17</div>
+    <h1>Capital with clarity.</h1>
+    <p>One workspace for inventory, purchasing, invoices, and cash — built to stay simple as the business grows.</p>
+  </div>
+  <div class="card loginbox">
+    <div class="login-stack">
+    <div class="logo-wrap login-logo"><img src="data:image/jpeg;base64,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" alt="SCASS" style="width:120px;height:auto;display:block;margin:0 auto;background:transparent"></div>
+    <div class="wordmark">SCASS.com</div>
+    <div class="login-row"><label>ID</label><input id="loginId" placeholder=""></div>
+    <div class="login-row"><label>Password</label><input id="loginPass" type="password" placeholder=""></div>
+    <button class="btn" onclick="doLogin()">Sign in</button>
+    <div id="loginInfo" class="muted"></div>
+    </div>
+  </div>
+</div>
+<div id="pageApp" class="erp" style="display:none">
+    <aside class="sidebar">
+      <div class="side-brand">
+        <div class="logo-wrap" style="background:#fff"><img src="data:image/jpeg;base64,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" alt="SCASS" style="width:64px;height:auto;display:block"></div>
+        <div class="side-name">SCASS</div>
+        <div class="side-sub">NewStar Kancing</div>
+      </div>
+      <nav class="side-nav">
+        <button class="nav on" id="n-dash" onclick="show('dash')">Dashboard<div class="hint">Overview</div></button>
+        <button class="nav" id="n-inv" onclick="show('inv')">Inventory<div class="hint">Stock</div></button>
+        <button class="nav" id="n-beli" onclick="show('beli')">Purchases<div class="hint">Supplier receipts</div></button>
+        <button class="nav" id="n-jual" onclick="show('jual')">Sales<div class="hint">Invoices</div></button>
+        <button class="nav" id="n-keu" onclick="show('keu')">Finance<div class="hint">Cash in / out</div></button>
+        <button class="nav" id="n-lap" onclick="show('lap')">Reports<div class="hint">Internal summary</div></button>
+        <button class="nav" id="n-master" onclick="show('master')">Master Data<div class="hint">Partners</div></button>
+        <button class="nav" id="n-set" onclick="show('set')">Settings<div class="hint">System</div></button>
+      </nav>
+      <div class="side-foot">
+        <div class="muted" style="color:#9fb6c0;margin:8px 0">USER / USER</div>
+        <button class="btn3" style="width:100%" onclick="logout()">Sign out</button>
+      </div>
+    </aside>
+    <section class="erp-main">
+      <div class="crumb"><b id="ttl">Dashboard</b><div id="sub">Ringkasan operasional</div></div>
+      <div id="m-dash">
+        <div class="mod-grid">
+          <div class="card kpi"><div class="lbl">SKU aktif</div><div class="val" id="kSku">0</div></div>
+          <div class="card kpi"><div class="lbl">Nilai stok</div><div class="val" id="kStok">Rp 0</div></div>
+          <div class="card kpi"><div class="lbl">Stok rendah</div><div class="val" id="kLow">0</div></div>
+          <div class="card kpi"><div class="lbl">Saldo kas</div><div class="val" id="kKas">Rp 0</div></div>
+          <div class="card kpi"><div class="lbl">Pembelian</div><div class="val" id="kBeli">Rp 0</div></div>
+          <div class="card kpi"><div class="lbl">Sales</div><div class="val" id="kJual">Rp 0</div></div>
+          <div class="card kpi"><div class="lbl">Invoice hari ini</div><div class="val" id="kPos">Rp 0</div></div>
+          <div class="card kpi"><div class="lbl">Pending</div><div class="val" id="kPub">0</div></div>
+        </div>
+        <div class="card"><b>Stok di bawah minimum</b><div id="dashLow" class="muted">—</div></div>
+      </div>
+      <div id="m-inv" style="display:none">
+        <div class="card">
+          <b>Tambah / ubah barang</b>
+          <div class="row">
+            <input id="bSku" placeholder="SKU (kosongkan = otomatis)" style="flex:1">
+            <input id="bNama" placeholder="Nama barang" style="flex:1">
+          </div>
+          <div class="row">
+            <input id="bKat" placeholder="Kategori" style="flex:1">
+            <input id="bSat" placeholder="Satuan (pcs/porsi)" style="flex:1">
+          </div>
+          <div class="row">
+            <input id="bStok" type="number" placeholder="Stok" style="flex:1">
+            <input id="bBeli" type="number" placeholder="Harga beli" style="flex:1">
+            <input id="bJual" type="number" placeholder="Harga jual" style="flex:1">
+            <input id="bMin" type="number" placeholder="Min stok" style="flex:1">
+          </div>
+          <div class="row"><button class="btn" onclick="saveBarang()">Simpan barang</button><button class="btn2" onclick="exportCsv('inventory')">Export CSV</button></div>
+          <div id="invInfo" class="muted"></div>
+        </div>
+        <div class="card">
+          <b>Search</b>
+          <div class="item-grid" style="grid-template-columns:1fr 1fr 1.4fr 1fr">
+            <div><label>Category</label><select id="fKat"></select></div>
+            <div><label>Uom</label><select id="fUom"></select></div>
+            <div><label>Product Name / SKU</label><input id="invQ" placeholder="Search SKU or name..."></div>
+            <div><label>Status</label><select id="fStat"><option value="">Show All</option><option value="LOW">LOW</option><option value="OK">OK</option></select></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn2" onclick="paintInv()">Search</button>
+            <button class="btn" onclick="exportCsv('inventory')">Export Data</button>
+            <button class="btn3" onclick="clearInvFilter()">Clear Filter</button>
+          </div>
+        </div>
+        <div class="card"><b>Inventory</b><div id="tblInv" class="table-wrap"></div></div>
+      </div>
+      <div id="m-beli" style="display:none">
+        <div class="card">
+          <b>Penerimaan barang</b>
+          <select id="poSup"></select>
+          <div id="poLines"></div>
+          <button class="btn2" type="button" onclick="addPoLine()">+ Item</button>
+          <button class="btn" onclick="savePo()">Save purchase</button>
+          <div id="poInfo" class="muted"></div>
+        </div>
+        <div class="card"><b>Riwayat pembelian</b><div id="tblPo"></div></div>
+      </div>
+      <div id="m-jual" style="display:none">
+        <div class="card">
+          <b>Invoice penjualan</b>
+          <select id="invCus"></select>
+          <div id="soLines"></div>
+          <button class="btn2" type="button" onclick="addSoLine()">+ Item</button>
+          <select id="soMetode"><option>Cash</option><option>Transfer</option><option>QRIS</option><option>Credit</option></select>
+          <select id="soStatus"><option value="PENDING">PENDING</option><option value="LUNAS">PAID</option><option value="BATAL">VOID</option></select>
+          <input id="soBayar" type="number" placeholder="Amount paid">
+          <div class="row">
+            <input id="soDiskonPct" type="number" placeholder="Discount %" style="flex:1">
+            <input id="soDiskonAmt" type="number" placeholder="Discount amount" style="flex:1">
+            <div class="muted" id="soTotalHint" style="flex:1;padding-top:10px"></div>
+          </div>
+          <button class="btn" onclick="saveInv()">Save invoice</button>
+          <div id="invcInfo" class="muted"></div>
+        </div>
+        <div class="card"><b>Riwayat invoice</b>
+        <input id="invSearch" placeholder="Search invoice number..." oninput="renderInvce()">
+        <div id="tblInvce"></div></div>
+      </div>
+      <div id="m-keu" style="display:none">
+        <div class="card">
+          <b>Kas masuk / keluar</b>
+          <select id="kJenis"><option>Masuk</option><option>Keluar</option></select>
+          <input id="kAkun" placeholder="Akun (Kas, Bank, Operasional)">
+          <input id="kKet" placeholder="Keterangan">
+          <input id="kJum" type="number" placeholder="Jumlah">
+          <button class="btn" onclick="saveKeu()">Simpan transaksi</button>
+          <div id="keuInfo" class="muted"></div>
+        </div>
+        <div class="card"><b>Buku kas</b><div id="tblKeu"></div></div>
+      </div>
+      <div id="m-lap" style="display:none">
+        <div class="card">
+          <b>Export</b>
+          <p class="muted">Unduh laporan dari sistem.</p>
+          <div class="row">
+            <button class="btn2" onclick="exportExcel()">Export Excel semua data</button>
+            <button class="btn" onclick="exportCsv('inventory')">CSV Inventory</button>
+            <button class="btn" onclick="exportCsv('supplier')">CSV Supplier</button>
+            <button class="btn" onclick="exportCsv('pelanggan')">CSV Pelanggan</button>
+            <button class="btn" onclick="exportCsv('pembelian')">CSV Pembelian</button>
+            <button class="btn" onclick="exportCsv('invoice')">CSV Invoice</button>
+            <button class="btn" onclick="exportCsv('keuangan')">CSV Keuangan</button>
+          </div>
+          <div id="expInfo" class="muted"></div>
+        </div>
+        <div class="card">
+          <b>Laporan ringkas</b>
+          <div class="muted">Dihitung dari Inventory, Pembelian, Invoice, dan Keuangan.</div>
+          <div id="lapBox"></div>
+        </div>
+      </div>
+      <div id="m-master" style="display:none">
+        <div class="card">
+          <b>Supplier / Pelanggan</b>
+          <select id="mJenis"><option value="supplier">Supplier</option><option value="pelanggan">Pelanggan</option></select>
+          <input id="mNama" placeholder="Nama">
+          <input id="mTel" placeholder="Telepon">
+          <input id="mAlamat" placeholder="Alamat">
+          <button class="btn" onclick="saveMitra()">Simpan mitra</button>
+          <div id="mitInfo" class="muted"></div>
+        </div>
+        <div class="card"><b>Supplier</b><div id="tblSup"></div></div>
+        <div class="card"><b>Pelanggan</b><div id="tblCus"></div></div>
+      </div>
+      <div id="m-set" style="display:none">
+        <div class="card">
+          <b>Settings</b>
+          <p class="muted">NewStar Kancing</p>
+          <label>Language</label>
+          <select id="langSel">
+            <option value="en">English</option>
+            <option value="id">Bahasa Indonesia</option>
+            <option value="zh">中文</option>
+            <option value="ar">العربية</option>
+          </select>
+          <button class="btn2" onclick="applyLang()">Apply language</button>
+          <div id="langInfo" class="muted"></div>
+        </div>
+        <div class="card">
+          <b>Import CSV</b>
+          <p class="muted">Upload file CSV (baris pertama = header). Inventory di-update berdasarkan SKU. Supplier/Pelanggan berdasarkan Kode. Transaksi ditambahkan.</p>
+          <select id="impJenis">
+            <option value="inventory">Inventory</option>
+            <option value="supplier">Supplier</option>
+            <option value="pelanggan">Pelanggan</option>
+            <option value="pembelian">Pembelian</option>
+            <option value="invoice">Invoice</option>
+            <option value="keuangan">Keuangan</option>
+          </select>
+          <input id="impFile" type="file" accept=".csv,text/csv">
+          <button class="btn2" onclick="importCsv()">Import ke sistem</button>
+          <div id="impInfo" class="muted"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+<script>
+
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyxWOQQ_cVvZ_1nlvW9Zt0sABqfbTXHgc9uoZw4JR_atTPo3iVaNDZg_6A1PhDMwkoQ/exec';
+  var API_TOKEN = 'NSK-SCASS-2026';
+  function jsonpApi(action, payload){
+    return new Promise(function(resolve, reject){
+      var cb = 'scassCb' + Date.now() + Math.floor(Math.random()*1e6);
+      var done = false;
+      window[cb] = function(res){
+        done = true; try{ delete window[cb]; }catch(e){}
+        if (s && s.parentNode) s.parentNode.removeChild(s);
+        if (res && res.ok === false) reject(new Error(res.error || 'API error'));
+        else resolve(res);
+      };
+      var s = document.createElement('script');
+      s.src = API_URL + '?action=' + encodeURIComponent(action)
+        + '&token=' + encodeURIComponent(API_TOKEN)
+        + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}))
+        + '&callback=' + cb;
+      s.onerror = function(){ if(!done) reject(new Error('Network error')); };
+      document.head.appendChild(s);
+      setTimeout(function(){ if(!done) reject(new Error('API timeout')); }, 28000);
+    });
+  }
+  if (!(window.google && google.script && google.script.run)) {
+    window.google = { script: { run: {
+      withSuccessHandler: function(ok){
+        return { withFailureHandler: function(fail){
+          function wrap(name){
+            return function(payload){
+              jsonpApi(name, payload).then(ok).catch(fail);
+            };
+          }
+          return {
+            getErpDashboard: wrap('getErpDashboard'),
+            getErpData: wrap('getErpData'),
+            simpanBarang: wrap('simpanBarang'),
+            ubahStok: wrap('ubahStok'),
+            simpanPembelian: wrap('simpanPembelian'),
+            simpanInvoice: wrap('simpanInvoice'),
+            simpanKeuangan: wrap('simpanKeuangan'),
+            simpanMitra: wrap('simpanMitra'),
+            exportErpExcel: wrap('exportErpExcel'),
+            importErpRows: wrap('importErpRows'),
+            exportInvoicePdf: wrap('exportInvoicePdf'), ubahStatusInvoice: wrap('ubahStatusInvoice'),
+            ubahStatusInvoice: wrap('ubahStatusInvoice')
+          };
+        }};
+      }
+    }}};
+  }
+  let data = { inventory:[], supplier:[], pelanggan:[], pembelian:[], invoice:[], keuangan:[] };
+  const META = {
+    dash:{t:'Dashboard',s:'Ringkasan operasional'},
+    inv:{t:'Inventory',s:'Stok dan harga barang'},
+    beli:{t:'Pembelian',s:'Penerimaan dari supplier'},
+    jual:{t:'Penjualan',s:'Invoice pelanggan'},
+    keu:{t:'Keuangan',s:'Kas masuk dan keluar'},
+    lap:{t:'Laporan',s:'Rekap ERP'},
+    master:{t:'Master Data',s:'Supplier dan pelanggan'},
+    set:{t:'Pengaturan',s:'Akun dan sistem'}
+  };
+  function rp(n){ return 'Rp ' + Number(n||0).toLocaleString('id-ID'); }
+  var busyTimer = null;
+  function busy(on, text){
+    document.getElementById('overlayText').innerText = text || 'Loading...';
+    document.getElementById('overlay').className = on ? 'show' : '';
+    if (busyTimer) clearTimeout(busyTimer);
+    if (on) busyTimer = setTimeout(function(){ document.getElementById('overlay').className=''; }, 12000);
+  }
+  function applyLang(){
+    var v = document.getElementById('langSel').value;
+    busy(true, 'Changing language...');
+    setTimeout(function(){
+      setLang(v);
+      busy(false);
+      var info = document.getElementById('langInfo');
+      if (info) { info.className='statusok'; info.innerText='Language updated'; }
+    }, 400);
+  }
+  function show(name){
+    Object.keys(META).forEach(function(k){
+      document.getElementById('m-'+k).style.display = k===name ? 'block' : 'none';
+      document.getElementById('n-'+k).className = 'nav' + (k===name ? ' on' : '');
+    });
+    document.getElementById('ttl').innerText = META[name].t;
+    document.getElementById('sub').innerText = META[name].s;
+    if (data && data._ready) {
+      if (name==='dash') paintDashFromCache();
+      else renderAll();
+    } else {
+      loadData(true);
+    }
+  }
+  function okLogin(role){
+    localStorage.setItem('scass_login','1');
+    localStorage.setItem('scass_role', role);
+    document.getElementById('pageLogin').classList.add('hide');
+    document.getElementById('pageLogin').style.display='none';
+    document.getElementById('pageApp').style.display='flex';
+    loadData(true);
+  }
+  function doLogin(){
+    const id = (document.getElementById('loginId').value||'').trim();
+    const pass = (document.getElementById('loginPass').value||'').trim();
+    const idU = id.toUpperCase();
+    if (idU==='USER' && pass.toUpperCase()==='USER') return okLogin('USER');
+    if (idU==='ADMIN' && pass==='admin1234') return okLogin('ADMIN');
+    if (idU==='TRIAL' && pass.toUpperCase()==='TRIAL') return okLogin('TRIAL');
+    document.getElementById('loginInfo').className='statuserr';
+    document.getElementById('loginInfo').innerText='LOGIN TIDAK DI TEMUKAN';
+  }
+  function logout(){
+    localStorage.removeItem('scass_login');
+    document.getElementById('pageApp').style.display='none';
+    document.getElementById('pageLogin').classList.remove('hide'); document.getElementById('pageLogin').style.display='flex';
+  }
+  function loadDash(){
+    busy(true, 'Memuat dashboard...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      document.getElementById('kSku').innerText = res.kpi.sku;
+      document.getElementById('kStok').innerText = rp(res.kpi.stokNilai);
+      document.getElementById('kLow').innerText = res.kpi.stokRendah;
+      document.getElementById('kKas').innerText = rp(res.kpi.kas);
+      document.getElementById('kBeli').innerText = rp(res.kpi.pembelian);
+      document.getElementById('kJual').innerText = rp(res.kpi.penjualan);
+      document.getElementById('kPos').innerText = rp(res.kpi.posHari);
+      document.getElementById('kPub').innerText = res.kpi.pending || 0;
+      if (document.getElementById('setSheet')) document.getElementById('setSheet').innerText = 'NewStar Kancing';
+      document.getElementById('dashLow').innerHTML = (res.rendah||[]).length
+        ? '<table><tr><th>SKU</th><th>Nama</th><th>Stok</th><th>Min</th></tr>' +
+          res.rendah.map(function(r){ return '<tr><td>'+r.SKU+'</td><td>'+r.Nama+'</td><td>'+r.Stok+'</td><td>'+r['Min Stok']+'</td></tr>'; }).join('') + '</table>'
+        : 'Tidak ada stok rendah.';
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); }).getErpDashboard();
+  }
+  function paintDashFromCache(){
+    var inv=data.inventory||[], po=data.pembelian||[], invce=data.invoice||[], keu=data.keuangan||[];
+    var nilai=0, rendah=0, low=[];
+    inv.forEach(function(r){
+      var stok=Number(r.Stok||r.Qty||0), harga=Number(r['Harga Beli']||r['Harga Jual']||0), min=Number(r['Min Stok']||0);
+      nilai+=stok*harga;
+      if(String(r.Stok||r.Qty||'')!=='' && stok<=min){ rendah++; if(low.length<8) low.push(r); }
+    });
+    var beli=po.reduce(function(s,r){return s+(Number(r.Subtotal)||0);},0);
+    var jual=invce.reduce(function(s,r){return s+(Number(r.Subtotal)||0);},0);
+    var kas=0;
+    keu.forEach(function(r){ var n=Number(r.Jumlah)||0; kas += String(r.Jenis||'').toLowerCase()==='keluar'?-n:n; });
+    var pending=invce.filter(function(r){return String(r.Status||'').toUpperCase()==='PENDING';}).length;
+    if(document.getElementById('kSku')){
+      kSku.innerText=inv.length; kStok.innerText=rp(nilai); kLow.innerText=rendah; kKas.innerText=rp(kas);
+      kBeli.innerText=rp(beli); kJual.innerText=rp(jual); kPub.innerText=pending;
+    }
+    if(document.getElementById('dashLow')) document.getElementById('dashLow').innerHTML = low.length? table(low,['SKU','Nama','Stok','Min Stok']) : '—';
+  }
+  function loadData(silent){
+    if (!silent) busy(true, 'Memuat data...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      data = res || {}; data._ready = true;
+      renderAll();
+      paintDashFromCache();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); }).getErpData();
+  }
+  function opt(list, val, label){
+    return '<option value="">Pilih</option>' + list.map(function(r){
+      return '<option value="'+r[val]+'">'+r[label]+' ('+r[val]+')</option>';
+    }).join('');
+  }
+  function renderAll(){
+    if (document.getElementById('soLines') && !document.getElementById('soLines').children.length) addSoLine();
+    if (document.getElementById('poLines') && !document.getElementById('poLines').children.length) addPoLine();
+
+    paintInv();
+    document.getElementById('tblPo').innerHTML = table(data.pembelian, ['Waktu','No PO','Supplier','SKU','Nama','Qty','Harga','Subtotal','Status']);
+    renderInvce();
+    document.getElementById('tblKeu').innerHTML = table(data.keuangan, ['Waktu','No Bukti','Jenis','Akun','Keterangan','Jumlah','Ref']);
+    document.getElementById('tblSup').innerHTML = table(data.supplier, ['Kode','Nama','Telepon','Alamat']);
+    document.getElementById('tblCus').innerHTML = table(data.pelanggan, ['Kode','Nama','Telepon','Alamat']);
+    document.getElementById('poSup').innerHTML = opt(data.supplier,'Nama','Nama');
+    document.getElementById('invCus').innerHTML = opt(data.pelanggan,'Nama','Nama');
+    document.getElementById('poSku').innerHTML = opt(data.inventory,'SKU','Nama');
+    document.getElementById('invSku').innerHTML = opt(data.inventory,'SKU','Nama');
+    const beli = data.pembelian.reduce(function(s,r){ return s+(Number(r.Subtotal)||0); },0);
+    const jual = data.invoice.reduce(function(s,r){ return s+(Number(r.Subtotal)||0); },0);
+    document.getElementById('lapBox').innerHTML = '<p>Total pembelian: <b>'+rp(beli)+'</b></p><p>Total invoice: <b>'+rp(jual)+'</b></p><p>SKU: <b>'+data.inventory.length+'</b></p>';
+  }
+  function table(rows, cols, extra){
+    if (!rows || !rows.length) return '<div class="muted">No records yet.</div>';
+    return '<table><tr>' + cols.map(function(c){ return '<th>'+c+'</th>'; }).join('') + (extra?'<th></th>':'') + '</tr>' +
+      rows.map(function(r){
+        return '<tr>' + cols.map(function(c){
+          const v = r[c];
+          return '<td>' + (typeof v==='number' && (c.indexOf('Harga')>=0 || c==='Subtotal' || c==='Jumlah') ? rp(v) : (v==null?'':v)) + '</td>';
+        }).join('') + (extra?'<td>'+extra(r)+'</td>':'') + '</tr>';
+      }).join('') + '</table>';
+  }
+  function isiPoHarga(){
+    const sku = document.getElementById('poSku').value;
+    const it = data.inventory.find(function(r){ return String(r.SKU)===sku; });
+    if (it) document.getElementById('poHarga').value = it['Harga Beli'] || 0;
+  }
+  function isiInvHarga(){
+    const sku = document.getElementById('invSku').value;
+    const it = data.inventory.find(function(r){ return String(r.SKU)===sku; });
+    if (it) document.getElementById('invHarga').value = it['Harga Jual'] || 0;
+  }
+  function saveBarang(){
+    busy(true, 'Menyimpan barang...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      document.getElementById('invInfo').className='statusok';
+      document.getElementById('invInfo').innerText='Tersimpan SKU '+res.sku;
+      loadData();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .simpanBarang({
+        sku: document.getElementById('bSku').value,
+        nama: document.getElementById('bNama').value,
+        kategori: document.getElementById('bKat').value,
+        satuan: document.getElementById('bSat').value,
+        stok: document.getElementById('bStok').value,
+        hargaBeli: document.getElementById('bBeli').value,
+        hargaJual: document.getElementById('bJual').value,
+        minStok: document.getElementById('bMin').value
+      });
+  }
+  function closeEdit(){ document.getElementById('editModal').className='modal-back'; }
+  function editStok(sku){
+    var it=(data.inventory||[]).find(function(r){ return String(r.SKU)===String(sku); });
+    if(!it) return alert('SKU not found');
+    document.getElementById('editTitle').innerText='Edit: '+(it.Nama||it.SKU);
+    eSku.value=it.SKU||'';
+    eNama.value=it.Nama||'';
+    eKat.value=it.Kategori||'';
+    eSat.value=it.Satuan||it.Uom||'PCS';
+    eStok.value=it.Stok||it.Qty||0;
+    eMin.value=it['Min Stok']||0;
+    eBeli.value=it['Harga Beli']||0;
+    eJual.value=it['Harga Jual']||it.Harga||0;
+    document.getElementById('editModal').className='modal-back show';
+  }
+  function saveEdit(){
+    busy(true,'Saving...');
+    google.script.run.withSuccessHandler(function(){
+      busy(false); closeEdit(); loadData(true);
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .simpanBarang({ sku:eSku.value, nama:eNama.value, kategori:eKat.value, satuan:eSat.value, stok:eStok.value, hargaBeli:eBeli.value, hargaJual:eJual.value, minStok:eMin.value });
+  }
+  function adj(sku, d){
+    busy(true, 'Mengubah stok...');
+    google.script.run.withSuccessHandler(function(){ busy(false); loadData(); })
+      .withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .ubahStok({ sku: sku, delta: d });
+  }
+  function savePo(){
+    const items = collect('poSku');
+    if (!items.length) return alert('Add at least one item');
+    busy(true, 'Saving...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      document.getElementById('poInfo').className='statusok';
+      document.getElementById('poInfo').innerText='Saved '+res.noPo;
+      loadData();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .simpanPembelian({ supplier: document.getElementById('poSup').value, items: items });
+  }
+  function skuOptions(){
+    return '<option value="">SKU / item name</option>' + (data.inventory||[]).map(function(r){
+      return '<option value="'+r.SKU+'">'+(r.Nama||r.SKU)+' ('+r.SKU+')</option>';
+    }).join('');
+  }
+  function filterSku(inp){
+    var wrap = inp.closest('.sku-wrap');
+    if (!wrap) return;
+    var box = wrap.querySelector('.sku-list');
+    var q = String(inp.value||'').trim().toLowerCase();
+    var rows = data.inventory||[];
+    if (q) rows = rows.filter(function(r){
+      return String(r.SKU||'').toLowerCase().indexOf(q)>=0 || String(r.Nama||'').toLowerCase().indexOf(q)>=0 || String(r.Kategori||'').toLowerCase().indexOf(q)>=0;
+    });
+    rows = rows.slice(0,20);
+    if (!rows.length){ box.innerHTML = '<div class="sku-empty">Tidak ada di inventory</div>'; box.style.display='block'; return; }
+    box.innerHTML = rows.map(function(r){
+      return '<button type="button" onclick="pickSku(this,\''+String(r.SKU).replace(/'/g,'')+'\')">'+(r.Nama||r.SKU)+' <span class="muted">'+r.SKU+(r.Satuan?' · '+r.Satuan:'')+'</span></button>';
+    }).join('');
+    box.style.display='block';
+  }
+  function pickSku(btn, sku){
+    var wrap = btn.closest('.sku-wrap');
+    var card = btn.closest('.item-card');
+    var hid = wrap.querySelector('.soSku, .poSku');
+    var inp = wrap.querySelector('.soSkuType, .poSkuType');
+    var it = (data.inventory||[]).find(function(r){ return String(r.SKU)===String(sku); });
+    if (hid) hid.value = sku;
+    if (inp) inp.value = it ? ((it.Nama||sku)+' ('+sku+')') : sku;
+    wrap.querySelector('.sku-list').style.display='none';
+    if (hid) fillCardPrice(hid);
+  }
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('.sku-wrap')) {
+      document.querySelectorAll('.sku-list').forEach(function(el){ el.style.display='none'; });
+    }
+  });
+  function itemUom(it){
+    return it.Satuan || it.Uom || it.UOM || it.Sat || it.Unit || 'PCS';
+  }
+  function itemPrice(it, jual){
+    if (jual) return it['Harga Jual'] || it.Harga || it.Price || it['Harga Beli'] || 0;
+    return it['Harga Beli'] || it.Harga || it.Cost || it.Price || 0;
+  }
+  function fillCardPrice(sel){
+    const it = (data.inventory||[]).find(function(r){ return String(r.SKU)===sel.value; });
+    const card = sel.closest('.item-card');
+    if (!card) return;
+    const price = card.querySelector('.soHarga, .poHarga');
+    const uom = card.querySelector('.soUom, .poUom');
+    if (!it) { if (uom) uom.value='PCS'; return; }
+    if (uom) uom.value = itemUom(it);
+    if (price) price.value = itemPrice(it, !!card.querySelector('.soHarga'));
+  }
+  function addSoLine(){
+    const wrap = document.getElementById('soLines');
+    const d = document.createElement('div');
+    d.className='item-card soLine';
+    d.innerHTML = '<button class="item-x" type="button" onclick="this.parentNode.remove()">×</button>'
+      + '<label>SKU / item</label><div class="sku-wrap"><input class="soSkuType" placeholder="Ketik SKU atau nama..." oninput="filterSku(this)" onfocus="filterSku(this)" autocomplete="off"><input type="hidden" class="soSku"><div class="sku-list"></div></div>'
+      + '<div class="item-grid"><div><label>Qty</label><input class="soQty" type="number" value="1"></div>'
+      + '<div><label>Uom</label><input class="soUom" placeholder="PCS" value="PCS"></div>'
+      + '<div><label>Price</label><input class="soHarga" type="number" placeholder="0"></div></div>';
+    wrap.appendChild(d);
+  }
+  function addPoLine(){
+    const wrap = document.getElementById('poLines');
+    if (!wrap) return;
+    const d = document.createElement('div');
+    d.className='item-card poLine';
+    d.innerHTML = '<button class="item-x" type="button" onclick="this.parentNode.remove()">×</button>'
+      + '<label>SKU / item</label><div class="sku-wrap"><input class="poSkuType" placeholder="Ketik SKU atau nama..." oninput="filterSku(this)" onfocus="filterSku(this)" autocomplete="off"><input type="hidden" class="poSku"><div class="sku-list"></div></div>'
+      + '<div class="item-grid"><div><label>Qty</label><input class="poQty" type="number" value="1"></div>'
+      + '<div><label>Uom</label><input class="poUom" placeholder="PCS" value="PCS"></div>'
+      + '<div><label>Cost</label><input class="poHarga" type="number" placeholder="0"></div></div>';
+    wrap.appendChild(d);
+  }
+  function collect(clsSku){
+    const out=[];
+    const root = clsSku==='soSku' ? '#soLines' : '#poLines';
+    document.querySelectorAll(root+' .item-card').forEach(function(card){
+      const hid=card.querySelector('.soSku, .poSku');
+      const sku=hid?String(hid.value||'').trim():''; if(!sku) return;
+      const it=(data.inventory||[]).find(function(r){return String(r.SKU)===sku;});
+      const qty=card.querySelector('.soQty, .poQty');
+      const harga=card.querySelector('.soHarga, .poHarga');
+      out.push({sku:sku,nama:it?it.Nama:sku,qty:qty?qty.value:1,harga:harga?harga.value:0,uom:(card.querySelector('.soUom,.poUom')||{}).value||''});
+    });
+    return out;
+  }
+
+  function quoteTotal(items){
+    var gross = 0;
+    items.forEach(function(it){ gross += (Number(it.qty)||0)*(Number(it.harga)||0); });
+    var pct = Number((document.getElementById('soDiskonPct')||{}).value)||0;
+    var amt = Number((document.getElementById('soDiskonAmt')||{}).value)||0;
+    var disc = amt > 0 ? amt : gross * pct / 100;
+    if (disc > gross) disc = gross;
+    var net = gross - disc;
+    var el = document.getElementById('soTotalHint');
+    if (el) el.innerText = 'Total '+rp(net)+ (disc? ' (−'+rp(disc)+')' : '');
+    return { gross:gross, disc:disc, net:net, pct:pct };
+  }
+  function saveInv(){
+    const items = collect('soSku');
+    if (!items.length) return alert('Add at least one item');
+    busy(true, 'Saving...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      document.getElementById('invcInfo').className='statusok';
+      document.getElementById('invcInfo').innerText='Saved '+res.noInv;
+      loadData();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .simpanInvoice({
+        pelanggan: document.getElementById('invCus').value,
+        items: items,
+        metode: (document.getElementById('soMetode')||{}).value,
+        status: (document.getElementById('soStatus')||{}).value,
+        bayar: (document.getElementById('soBayar')||{}).value,
+        diskonPct: (document.getElementById('soDiskonPct')||{}).value,
+        diskon: quoteTotal(items).disc
+      });
+  }
+  function saveKeu(){
+    busy(true, 'Menyimpan kas...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      document.getElementById('keuInfo').className='statusok';
+      document.getElementById('keuInfo').innerText='Tersimpan '+res.noBukti;
+      loadData();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .simpanKeuangan({
+        jenis: document.getElementById('kJenis').value,
+        akun: document.getElementById('kAkun').value,
+        keterangan: document.getElementById('kKet').value,
+        jumlah: document.getElementById('kJum').value
+      });
+  }
+  function saveMitra(){
+    busy(true, 'Menyimpan mitra...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      document.getElementById('mitInfo').className='statusok';
+      document.getElementById('mitInfo').innerText='Tersimpan '+res.kode;
+      loadData();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .simpanMitra({
+        jenis: document.getElementById('mJenis').value,
+        nama: document.getElementById('mNama').value,
+        telepon: document.getElementById('mTel').value,
+        alamat: document.getElementById('mAlamat').value
+      });
+  }
+
+  const CSV_COLS = {
+    inventory: ['SKU','Nama','Kategori','Satuan','Stok','Harga Beli','Harga Jual','Min Stok','Status'],
+    supplier: ['Kode','Nama','Telepon','Alamat'],
+    pelanggan: ['Kode','Nama','Telepon','Alamat'],
+    pembelian: ['Waktu','No PO','Supplier','SKU','Nama','Qty','Harga','Subtotal','Status'],
+    invoice: ['Waktu','No Inv','Pelanggan','SKU','Nama','Qty','Harga','Gross','Diskon','Bersih','Status','Metode'],
+    keuangan: ['Waktu','No Bukti','Jenis','Akun','Keterangan','Jumlah','Ref']
+  };
+  function csvEscape(v){
+    const t = String(v==null?'':v);
+    if (/[",\n]/.test(t)) return '"' + t.replace(/"/g,'""') + '"';
+    return t;
+  }
+  function invoiceExportRow(r){
+    var qty = Number(r.Qty)||0;
+    var harga = Number(r.Harga)||0;
+    var gross = qty * harga;
+    var disc = Number(r.Diskon)||0;
+    var bersih = Number(r.Subtotal);
+    if (!disc && gross && bersih && gross > bersih) disc = gross - bersih;
+    if (isNaN(bersih) || bersih===0 && gross) bersih = gross - disc;
+    return Object.assign({}, r, { Gross: gross, Diskon: disc, Bersih: bersih });
+  }
+  function exportCsv(jenis){
+    const cols = CSV_COLS[jenis];
+    var rows = data[jenis] || [];
+    if (jenis === 'invoice') rows = rows.map(invoiceExportRow);
+    const lines = [cols.join(';')].concat(rows.map(function(r){
+      return cols.map(function(c){ return csvEscape(r[c]); }).join(';');
+    }));
+    const blob = new Blob(['\ufeff'+lines.join('\n')], {type:'application/vnd.ms-excel;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'SCASS-'+jenis+'.xls';
+    a.click();
+    document.getElementById('expInfo').className='statusok';
+    document.getElementById('expInfo').innerText='File '+a.download+' diunduh.';
+  }
+  function downloadB64(name, b64, mime){
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([bytes], {type: mime||'application/octet-stream'}));
+    a.download = name;
+    a.click();
+  }
+  function exportExcelLocal(){
+    var parts = [];
+    Object.keys(CSV_COLS).forEach(function(jenis){
+      var cols = CSV_COLS[jenis];
+      var rows = data[jenis] || [];
+      if (jenis === 'invoice') rows = rows.map(invoiceExportRow);
+      parts.push('<h3>'+jenis+'</h3><table border="1"><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr>');
+      rows.forEach(function(r){
+        parts.push('<tr>'+cols.map(function(c){return '<td>'+String(r[c]==null?'':r[c]).replace(/</g,'')+'</td>';}).join('')+'</tr>');
+      });
+      parts.push('</table>');
+    });
+    var blob = new Blob(['\ufeff<html><body>'+parts.join('')+'</body></html>'], {type:'application/vnd.ms-excel'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'SCASS-ERP.xls';
+    a.click();
+  }
+  function exportExcel(){
+    busy(true, 'Menyiapkan Excel...');
+    google.script.run.withSuccessHandler(function(res){
+      busy(false);
+      if (res && res.base64) {
+        downloadB64(res.name||'SCASS-ERP.xlsx', res.base64, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        document.getElementById('expInfo').className='statusok';
+        document.getElementById('expInfo').innerText = 'File '+(res.name||'SCASS-ERP.xlsx')+' diunduh.';
+        return;
+      }
+      exportExcelLocal();
+      document.getElementById('expInfo').className='statusok';
+      document.getElementById('expInfo').innerText = 'File SCASS-ERP.xls diunduh.';
+    }).withFailureHandler(function(){
+      busy(false);
+      exportExcelLocal();
+      document.getElementById('expInfo').className='statusok';
+      document.getElementById('expInfo').innerText = 'File SCASS-ERP.xls diunduh.';
+    }).exportErpExcel();
+  }
+  function parseCsvText(text){
+    const rows = [];
+    let row = [], cell = '', q = false;
+    for (let i=0;i<text.length;i++){
+      const ch = text[i], next = text[i+1];
+      if (q){
+        if (ch==='"' && next==='"'){ cell+='"'; i++; }
+        else if (ch==='"'){ q=false; }
+        else cell+=ch;
+      } else {
+        if (ch==='"') q=true;
+        else if (ch===','){ row.push(cell); cell=''; }
+        else if (ch==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+        else if (ch!=='\r') cell+=ch;
+      }
+    }
+    if (cell.length || row.length){ row.push(cell); rows.push(row); }
+    return rows.filter(function(r){ return r.some(function(c){ return String(c).trim()!==''; }); });
+  }
+  function importCsv(){
+    const jenis = document.getElementById('impJenis').value;
+    const file = document.getElementById('impFile').files[0];
+    if (!file) return alert('Pilih file CSV');
+    const reader = new FileReader();
+    reader.onload = function(){
+      const raw = String(reader.result||'').replace(/^\ufeff/,'');
+      const grid = parseCsvText(raw);
+      if (grid.length < 2) return alert('CSV kosong atau tanpa data');
+      const head = grid[0].map(function(h){ return String(h||'').trim(); });
+      const rows = [];
+      for (let i=1;i<grid.length;i++){
+        const obj = {};
+        head.forEach(function(h,c){ obj[h] = grid[i][c] != null ? String(grid[i][c]).trim() : ''; });
+        rows.push(obj);
+      }
+      busy(true, 'Mengimpor '+rows.length+' baris...');
+      google.script.run.withSuccessHandler(function(res){
+        busy(false);
+        document.getElementById('impInfo').className='statusok';
+        document.getElementById('impInfo').innerText='Import selesai: '+res.masuk+' baris ke '+res.jenis+'.';
+        loadData();
+        loadDash();
+      }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+        .importErpRows({ jenis: jenis, rows: rows });
+    };
+    reader.readAsText(file);
+  }
+
+  function uniq(list, key){
+    var m={};
+    (list||[]).forEach(function(r){ var v=String(r[key]||'').trim(); if(v) m[v]=1; });
+    return Object.keys(m).sort();
+  }
+  function fillInvFilters(){
+    var kat=document.getElementById('fKat');
+    var uom=document.getElementById('fUom');
+    if(!kat||!uom) return;
+    var kv=kat.value, uv=uom.value;
+    kat.innerHTML='<option value="">- Select Category -</option>'+uniq(data.inventory,'Kategori').map(function(v){return '<option>'+v+'</option>';}).join('');
+    uom.innerHTML='<option value="">- Select Uom -</option>'+uniq(data.inventory,'Satuan').map(function(v){return '<option>'+v+'</option>';}).join('');
+    kat.value=kv; uom.value=uv;
+  }
+  function clearInvFilter(){
+    var kat=document.getElementById('fKat');
+    var uom=document.getElementById('fUom');
+    var q=document.getElementById('invQ');
+    var st=document.getElementById('fStat');
+    if(kat){ kat.value=''; kat.dataset.ready=''; }
+    if(uom) uom.value='';
+    if(q) q.value='';
+    if(st) st.value='';
+    fillInvFilters();
+    paintInv();
+  }
+  function paintInv(){
+    fillInvFilters();
+    var q=String((document.getElementById('invQ')||{}).value||'').toLowerCase();
+    var kat=String((document.getElementById('fKat')||{}).value||'');
+    var uom=String((document.getElementById('fUom')||{}).value||'');
+    var st=String((document.getElementById('fStat')||{}).value||'');
+    var rows=(data.inventory||[]).filter(function(r){
+      var stok=Number(r.Stok||r.Qty||0);
+      var min=Number(r['Min Stok']||r.Min||0);
+      var status=stok<=min?'LOW':'OK';
+      if(kat && String(r.Kategori||'')!==kat) return false;
+      if(uom && String(r.Satuan||r.Uom||'')!==uom) return false;
+      if(st && status!==st) return false;
+      if(q && (String(r.SKU||'')+' '+String(r.Nama||'')).toLowerCase().indexOf(q)<0) return false;
+      return true;
+    });
+    var el=document.getElementById('tblInv');
+    if(el) el.innerHTML = renderInv(rows);
+  }
+  function renderInv(rows){
+    if(!rows||!rows.length) return '<div class="muted">No items yet.</div>';
+    var head='<tr><th>#</th><th>SKU</th><th>Product Name</th><th>Category</th><th>Uom</th><th>Qty</th><th>Cost</th><th>Price</th><th>Min</th><th>Status</th><th>Aksi</th></tr>';
+    var body=rows.map(function(r,i){
+      var stok=Number(r.Stok||r.Qty||0);
+      var min=Number(r['Min Stok']||r.Min||0);
+      var low=stok<=min;
+      var sku=String(r.SKU||'').replace(/'/g,'');
+      return '<tr>'
+        +'<td>'+(i+1)+'</td>'
+        +'<td>'+ (r.SKU||'') +'</td>'
+        +'<td>'+ (r.Nama||'') +'</td>'
+        +'<td>'+ (r.Kategori||'') +'</td>'
+        +'<td>'+ (r.Satuan||r.Uom||'PCS') +'</td>'
+        +'<td>'+ stok +'</td>'
+        +'<td>'+ rp(r['Harga Beli']||r.Cost||0) +'</td>'
+        +'<td>'+ rp(r['Harga Jual']||r.Harga||r.Price||0) +'</td>'
+        +'<td>'+ min +'</td>'
+        +'<td>'+ (low?'LOW':'OK') +'</td>'
+        +'<td><button class="btn2" title="Edit stock" onclick="editStok(\''+sku+'\','+stok+')">✎</button></td>'
+        +'</tr>';
+    }).join('');
+    return '<table><thead>'+head+'</thead><tbody>'+body+'</tbody></table>';
+  }
+
+  function renderInvce(){
+    var q = String((document.getElementById('invSearch')||{}).value||'').trim().toLowerCase();
+    var rows = (data.invoice||[]).filter(function(r){
+      if (!q) return true;
+      return String(r['No Inv']||'').toLowerCase().indexOf(q) >= 0
+        || String(r.Pelanggan||'').toLowerCase().indexOf(q) >= 0
+        || String(r.Nama||'').toLowerCase().indexOf(q) >= 0
+        || String(r.SKU||'').toLowerCase().indexOf(q) >= 0;
+    });
+    var el = document.getElementById('tblInvce');
+    if (!el) return;
+    el.innerHTML = table(rows, ['Waktu','No Inv','Pelanggan','SKU','Nama','Qty','Harga','Subtotal','Diskon','Status'], function(r){
+      return '<button class="icon-pen" title="Edit / view" onclick="openInvce(\''+String(r['No Inv']||'').replace(/'/g,'')+'\')">&#9998;</button>';
+    }).replace('<th></th>','<th>Aksi</th>');
+  }
+  function openInvce(no){
+    var lines = (data.invoice||[]).filter(function(r){ return String(r['No Inv'])===String(no); });
+    if (!lines.length) return;
+    var r = lines[0];
+    var st = String(r.Status||'PENDING').toUpperCase();
+    if (st==='PAID') st='LUNAS';
+    document.getElementById('ivNo').value = no;
+    document.getElementById('ivCus').value = r.Pelanggan||'-';
+    document.getElementById('ivTgl').value = r.Waktu||'';
+    document.getElementById('ivStatus').value = (st==='VOID'||st==='BATAL')?'VOID':(st==='LUNAS'?'LUNAS':'PENDING');
+    document.getElementById('ivItems').innerText = lines.map(function(x){
+      return (x.SKU||'')+' '+ (x.Nama||'')+' x'+ (x.Qty||0);
+    }).join(' | ');
+    document.getElementById('invceModal').classList.add('show');
+  }
+  function closeInvce(){ document.getElementById('invceModal').classList.remove('show'); }
+  function saveInvceStatus(){
+    var no = document.getElementById('ivNo').value;
+    var status = document.getElementById('ivStatus').value;
+    busy(true, 'Updating status...');
+    google.script.run.withSuccessHandler(function(){
+      busy(false);
+      (data.invoice||[]).forEach(function(r){ if (String(r['No Inv'])===String(no)) r.Status = status; });
+      closeInvce();
+      renderInvce();
+    }).withFailureHandler(function(err){ busy(false); alert(err.message||err); })
+      .ubahStatusInvoice({ noInv: no, status: status });
+  }
+  function pdfInv(no){
+    var rows=(data.invoice||[]).filter(function(r){return String(r['No Inv'])===String(no);});
+    if(!rows.length) return alert('Invoice not found');
+    var r0=rows[0];
+    var gross=0, disc=0, tot=0;
+    rows.forEach(function(r){
+      var g=(Number(r.Qty)||0)*(Number(r.Harga)||0);
+      var net=Number(r.Subtotal)||0;
+      var d=Number(r.Diskon)||0;
+      if(!d && g>net) d=g-net;
+      gross+=g; disc+=d; tot+=net|| (g-d);
+    });
+    var pct=gross>0? Math.round(disc/gross*1000)/10 : 0;
+    if(Math.abs(pct-Math.round(pct))<0.05) pct=Math.round(pct);
+    var st=String(r0.Status||'PENDING').toUpperCase();
+    if(st==='LUNAS') st='PAID';
+    function rp2(n){ return 'Rp '+Number(n||0).toLocaleString('id-ID'); }
+    var lines=rows.map(function(r){
+      var g=(Number(r.Qty)||0)*(Number(r.Harga)||0); var d=Number(r.Diskon)||0; var n=Number(r.Subtotal); if(!n&&n!==0) n=g-d; return '<tr><td>'+(r.SKU||'')+'</td><td>'+(r.Nama||'')+'</td><td style="text-align:center">'+(r.Qty||0)+'</td><td style="text-align:right">'+rp2(r.Harga)+'</td><td style="text-align:right">'+rp2(n)+'</td></tr>';
+    }).join('');
+    var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>SCASS '+no+'</title>'
+      +'<style>body{font-family:Arial,sans-serif;color:#16324f;padding:28px;}'
+      +'h1{margin:0;text-align:center;font-size:22px} .sub{text-align:center;color:#5b7380;margin:4px 0 14px}'
+      +'.bar{background:#12324a;color:#fff;text-align:center;padding:8px;font-weight:700;letter-spacing:.04em}'
+      +'table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}'
+      +'th,td{border:1px solid #c9dde0;padding:7px 8px}'
+      +'th{background:#1f7a6e;color:#fff}'
+      +'.tot td{font-weight:700}'
+      +'.tot .g{background:#0b4f37;color:#fff}'
+      +'.meta td{border:1px solid #c9dde0}'
+      +'.lbl{background:#eef6f4;font-weight:700;width:18%}'
+      +'@media print{button{display:none} body{padding:0}}</style></head><body>'
+      +'<button onclick="window.print()" style="margin-bottom:12px;padding:8px 14px;background:#0d9488;color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer">Print / Save PDF</button>'
+      +'<h1>SCASS</h1><div class="sub">NewStar Kancing</div>'
+      +'<div class="bar">SALES INVOICE</div>'
+      +'<table class="meta" style="margin-top:10px"><tr><td class="lbl">Invoice No.</td><td>'+no+'</td><td class="lbl">Date</td><td>'+(r0.Waktu||'')+'</td></tr>'
+      +'<tr><td class="lbl">Customer</td><td>'+(r0.Pelanggan||'-')+'</td><td class="lbl">Status</td><td>'+st+'</td></tr>'
+      +'<tr><td class="lbl">Payment</td><td>'+(r0.Metode||'-')+'</td><td class="lbl">Paid</td><td>'+rp2(r0.Bayar)+'</td></tr></table>'
+      +'<table><thead><tr><th>SKU</th><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead><tbody>'
+      +lines
+      +'<tr class="tot"><td colspan="3"></td><td>SUBTOTAL</td><td style="text-align:right">'+rp2(gross)+'</td></tr>'
+      +'<tr class="tot"><td colspan="3"></td><td>DISCOUNT '+pct+'%</td><td style="text-align:right">'+rp2(disc)+'</td></tr>'
+      +'<tr class="tot g"><td colspan="3"></td><td>TOTAL</td><td style="text-align:right">'+rp2(tot)+'</td></tr>'
+      +'</tbody></table>'
+      +'<p style="text-align:center;color:#5b7380;margin-top:28px">Thank you for your business</p>'
+      +'</body></html>';
+    var w=window.open('','_blank');
+    if(!w){ alert('Izinkan pop-up untuk melihat invoice'); return; }
+    w.document.write(html);
+    w.document.close();
+  }
+  function xlsInv(no){
+    const rows=(data.invoice||[]).filter(function(r){return String(r['No Inv'])===String(no);});
+    const cols=['Waktu','No Inv','Pelanggan','SKU','Nama','Qty','Harga','Subtotal','Status'];
+    const lines=[cols.join(';')].concat(rows.map(function(r){return cols.map(function(c){return String(r[c]==null?'':r[c]);}).join(';');}));
+    const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'application/vnd.ms-excel;charset=utf-8;'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='SCASS-INV-'+no+'.xls'; a.click();
+  }
+
+  document.addEventListener('input', function(e){
+    if (!e.target) return;
+    if (/soQty|soHarga|soDiskon|invQty|invHarga/.test(e.target.id||e.target.className||'')) {
+      try { quoteTotal(collect('soSku')); } catch(ex) {}
+    }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key==='Enter' && document.getElementById('pageApp').style.display==='none') doLogin();
+  });
+  if (localStorage.getItem('scass_login')==='1') {
+    document.getElementById('pageLogin').classList.add('hide'); document.getElementById('pageLogin').style.display='none';
+    document.getElementById('pageApp').style.display='flex';
+    setLang(lang); loadData(true);
+  }
+</script>
 </body>
 </html>
